@@ -6,6 +6,12 @@
 #include "GameFramework/Pawn.h"
 #include "Hamster.generated.h"
 
+class IdleState;
+class HungryState;
+class StarvingState;
+class EatingState;
+class DeathState;
+
 class HamsterState
 {
 public:
@@ -13,6 +19,11 @@ public:
 	virtual void HandleInput(AHamster& Hamster);
 	virtual void Update(AHamster& Hamster);
 	virtual void Enter(AHamster& Hamster);
+	static IdleState Idle;
+	static HungryState Hungry;
+	static StarvingState Starving;
+	static EatingState Eating;
+	static DeathState Dead;
 };
 
 class IdleState : public HamsterState

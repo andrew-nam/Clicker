@@ -8,6 +8,16 @@
 #include "UObject/ConstructorHelpers.h"
 #include "PaperFlipbook.h"
 
+const int kHungryThreshold = 500;
+const int kStarvingThreshold = 0;
+const int kHamsterMaxHealth = 100;
+const int kHamsterMinHealth = 0;
+
+IdleState HamsterState::Idle;
+HungryState HamsterState::Hungry;
+StarvingState HamsterState::Starving;
+DeathState HamsterState::Dead;
+EatingState HamsterState::Eating;
 
 void HamsterState::HandleInput(AHamster& Hamster)
 {
@@ -41,19 +51,14 @@ void EatingState::Update(AHamster& Hamster)
 {
 	if (!Hamster.FlipbookComponent->IsPlaying())
 	{
-		IdleState* TempState = new IdleState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Idle;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 void IdleState::Enter(AHamster& Hamster)
 {
-	if (Hamster.Hunger > 500)
+	if (Hamster.Hunger > kHungryThreshold)
 	{
 		Hamster.FlipbookComponent->SetFlipbook(Hamster.IdleFlipbook);
 		Hamster.FlipbookComponent->SetLooping(1);
@@ -61,38 +66,28 @@ void IdleState::Enter(AHamster& Hamster)
 	}
 	else
 	{
-		HungryState* TempState = new HungryState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Hungry;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 void IdleState::Update(AHamster& Hamster)
 {
-	if (Hamster.Health < 500)
+	if (Hamster.Health < kHamsterMaxHealth)
 	{
 		Hamster.Health += 1;
 	}
 	Hamster.Hunger -= 1;
-	if (Hamster.Hunger < 250)
+	if (Hamster.Hunger < kHungryThreshold)
 	{
-		HungryState* TempState = new HungryState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Hungry;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 void HungryState::Enter(AHamster& Hamster)
 {
-	if (Hamster.Hunger > 0 && Hamster.Hunger < 250)
+	if (Hamster.Hunger > kStarvingThreshold && Hamster.Hunger <= kHungryThreshold)
 	{
 		Hamster.FlipbookComponent->SetFlipbook(Hamster.HungryFlipbook);
 		Hamster.FlipbookComponent->SetLooping(1);
@@ -100,71 +95,51 @@ void HungryState::Enter(AHamster& Hamster)
 	}
 	else
 	{
-		StarvingState* TempState = new StarvingState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Starving;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 void HungryState::Update(AHamster& Hamster)
 {
 	Hamster.Hunger -= 1;
-	if (Hamster.Hunger <= 0)
+	if (Hamster.Hunger <= kStarvingThreshold)
 	{
-		StarvingState* TempState = new StarvingState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Starving;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 void StarvingState::Enter(AHamster& Hamster)
 {
-	if (Hamster.Hunger <= 0 && Hamster.Health > 0)
+	if (Hamster.Hunger <= kStarvingThreshold && Hamster.Health > kHamsterMinHealth)
 	{
-		Hamster.Hunger = 0;
+		Hamster.Hunger = kStarvingThreshold;
 		Hamster.FlipbookComponent->SetFlipbook(Hamster.StarvingFlipbook);
 		Hamster.FlipbookComponent->SetLooping(1);
 		Hamster.FlipbookComponent->PlayFromStart();
 	}
-	else if(Hamster.Health <= 0)
+	else if(Hamster.Health <= kHamsterMinHealth)
 	{
-		DeathState* TempState = new DeathState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Dead;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 void StarvingState::Update(AHamster& Hamster)
 {
 	Hamster.Health -= 1;
-	if (Hamster.Health <= 0)
+	if (Hamster.Health <= kHamsterMaxHealth)
 	{
-		DeathState* TempState = new DeathState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Dead;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
 
 void DeathState::Enter(AHamster& Hamster)
 {
-	if (Hamster.Health <= 0)
+	if (Hamster.Health <= kHamsterMinHealth)
 	{
 		Hamster.FlipbookComponent->SetFlipbook(Hamster.DeathFlipbook);
 		Hamster.FlipbookComponent->SetLooping(1);
@@ -172,13 +147,8 @@ void DeathState::Enter(AHamster& Hamster)
 	}
 	else
 	{
-		IdleState* TempState = new IdleState();
-		if (TempState != NULL)
-		{
-			delete Hamster.State_;
-			Hamster.State_ = TempState;
-			Hamster.State_->Enter(Hamster);
-		}
+		Hamster.State_ = &HamsterState::Idle;
+		Hamster.State_->Enter(Hamster);
 	}
 }
 
@@ -213,7 +183,6 @@ AHamster::AHamster()
 	Health = 500;
 	Happiness = 100;
 	Hunger = 750;
-
 }
 
 // Called when the game starts or when spawned
@@ -246,13 +215,7 @@ void AHamster::Clicked(UPrimitiveComponent* TouchedComponent, FKey Key)
 		State_->HandleInput(*this);
 		return;
 	}
-	EatingState* TempState = new EatingState();
-	if (TempState != NULL)
-	{
-		delete State_;
-		State_ = TempState;
-		State_->Enter(*this);
-	}
+	State_ = &HamsterState::Eating;
 	State_->HandleInput(*this);
 	State_->Enter(*this);
 }
