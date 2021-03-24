@@ -10,7 +10,7 @@
 
 const int kHungryThreshold = 500;
 const int kStarvingThreshold = 0;
-const int kHamsterMaxHealth = 100;
+const int kHamsterMaxHealth = 500;
 const int kHamsterMinHealth = 0;
 
 IdleState HamsterState::Idle;

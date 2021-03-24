@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	int32 GetMoney();
 
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	void SetMoney(int32 NewMoney);
+
 protected:
 	UPROPERTY()
 	int32 Money;

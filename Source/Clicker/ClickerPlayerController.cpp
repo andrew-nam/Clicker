@@ -29,3 +29,7 @@ int32 AClickerPlayerController::GetMoney()
 	return Money;
 }
 
+void AClickerPlayerController::SetMoney(int32 NewMoney)
+{
+	Money = NewMoney;
+}
