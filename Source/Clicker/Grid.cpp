@@ -70,6 +70,7 @@ ATile* AGrid::CreateTile(TSubclassOf<class ATile> TileToSpawn, class UMaterialIn
 			return NewTile;
 		}
 	}
+	return nullptr;
 }
 
 ATile* AGrid::GetTileFromGridAddress(int32 GridAddress) const

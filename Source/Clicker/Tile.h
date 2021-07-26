@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PaperSpriteActor.h"
+#include "PaperSpriteComponent.h"
 #include "Tile.generated.h"
 
 /**
@@ -26,28 +27,29 @@ class CLICKER_API ATile : public APaperSpriteActor
 {
 	GENERATED_BODY()
 
-	UFUNCTION()
-	void TilePress(ETouchIndex::Type FingerIndex, AActor* TouchedActor);
+public:
+	//UFUNCTION()
+	//void TilePress(ETouchIndex::Type FingerIndex, AActor* TouchedActor);
 
-	UFUNCTION()
-	void TileEnter(ETouchIndex::Type FingerIndex, AActor* TouchedActor);
+	//UFUNCTION()
+	//void TileEnter(ETouchIndex::Type FingerIndex, AActor* TouchedActor);
 
-	UFUNCTION()
-	void TilePress_Mouse(AActor* ClickedActor, FKey ButtonClicked);
+	//UFUNCTION()
+	//void TilePress_Mouse(AActor* ClickedActor, FKey ButtonClicked);
 
-	UFUNCTION()
-	void TileEnter_Mouse(AActor* MousedOverActor);
+	//UFUNCTION()
+	//void TileEnter_Mouse(AActor* MousedOverActor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Placement Events")
 	void SetPlacement();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Placement Events")
+	UFUNCTION(BlueprintNativeEvent, Category = "Special Game Events")
 	void SetTileMaterial(class UMaterialInstanceConstant* TileMaterial);
 	virtual void SetTileMaterial_Implementation(class UMaterialInstanceConstant* TileMaterial);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Placement Events")
-	void OnPlaced();
-	virtual void OnPlaced_Implementation();
+	//UFUNCTION(BlueprintNativeEvent, Category = "Placement Events")
+	//void OnPlaced();
+	//virtual void OnPlaced_Implementation();
 
 	UPROPERTY(Category = "Sprites", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UPaperSpriteComponent* SpriteComponent;

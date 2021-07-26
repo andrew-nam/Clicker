@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PaperSprite.h"
 #include "Tile.h"
 #include "Grid.generated.h"
 
@@ -38,7 +39,7 @@ public:
 	TArray<FTileType> TileLibrary;
 
 	/** THe size of a space on the grid. Does not include borders or spacing between tiles. */
-	UPROPERTY(EditAnwywhere, Category = Tile)
+	UPROPERTY(EditAnywhere, Category = Tile)
 	FVector2D TileSize;
 
 	/** The width of the grid. Needed to calculate tile positions and neighbors. */
