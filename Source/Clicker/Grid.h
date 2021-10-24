@@ -35,21 +35,29 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ATile*> MapTiles;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FTileType> TileLibrary;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//TArray<FTileType> TileLibrary;
 
-	/** THe size of a space on the grid. Does not include borders or spacing between tiles. */
-	UPROPERTY(EditAnywhere, Category = Tile)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FTileType BaseTile;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UPaperSpriteComponent* SpriteComponent;
+
+	/** The size of a space on the grid. Does not include borders or spacing between tiles. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Tile)
 	FVector2D TileSize;
 
 	/** The width of the grid. Needed to calculate tile positions and neighbors. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Tile)
 	int32 GridWidth;
 
 	/** The height of the grid. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Tile)
 	int32 GridHeight;
 
 	/** Spawn a tile and associate it with a specific grid address. */
-	ATile* CreateTile(TSubclassOf<class ATile> TileToSpawn, class UMaterialInstanceConstant* TileMaterial, FVector SpawnLocation, int32 SpawnGridAddress, int32 TileTypeId);
+	ATile* CreateTile(TSubclassOf<class ATile> TileToSpawn, class UMaterialInstanceConstant* TileMaterial, FVector SpawnLocation, int32 SpawnGridAddress, TEnumAsByte<ETileState::Type> TileState);
 
 	/**Get the pointer to the tile at the specified grid address. */
 	ATile* GetTileFromGridAddress(int32 GridAddress) const;

@@ -8,6 +8,8 @@ AGrid::AGrid()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	SpriteComponent = CreateDefaultSubobject<UPaperSpriteComponent>(FName("BackgroundSprite"));
+	SpriteComponent->SetupAttachment(RootComponent);
 
 }
 
@@ -37,18 +39,19 @@ void AGrid::InitGrid()
 			int32 GridAddress;
 			GetGridAddressWithOffset(0, Column, Row, GridAddress);
 			SpawnLocation = GetLocationFromGridAddress(GridAddress);
+			TEnumAsByte<ETileState::Type> TileState = ETileState::ETS_Empty;
 
-			CreateTile(TileLibrary[0].TileClass, TileLibrary[0].TileMaterial, SpawnLocation, GridAddress, 0);
+			CreateTile(BaseTile.TileClass, BaseTile.TileMaterial, SpawnLocation, GridAddress, TileState);
 		}
 	}
 }
 
-ATile* AGrid::CreateTile(TSubclassOf<class ATile> TileToSpawn, class UMaterialInstanceConstant* TileMaterial, FVector SpawnLocation, int32 SpawnGridAddress, int32 TileTypeID)
+ATile* AGrid::CreateTile(TSubclassOf<class ATile> TileToSpawn, class UMaterialInstanceConstant* TileMaterial, FVector SpawnLocation, int32 SpawnGridAddress, TEnumAsByte<ETileState::Type> TileState)
 {
 	// If we have set something to spawn:
 	if (TileToSpawn)
 	{
-		checkSlow(TileLibrary.IsValidIndex(TileTypeID));
+		//checkSlow(TileLibrary.IsValidIndex(TileTypeID));
 		// Check for a valid World:
 		UWorld* const World = GetWorld();
 		if (World)
@@ -63,7 +66,7 @@ ATile* AGrid::CreateTile(TSubclassOf<class ATile> TileToSpawn, class UMaterialIn
 			// Spawn the tile.
 			ATile* const NewTile = World->SpawnActor<ATile>(TileToSpawn, SpawnLocation, SpawnRotation, SpawnParams);
 			NewTile->GetRenderComponent()->SetMobility(EComponentMobility::Movable);
-			NewTile->TileTypeID = TileTypeID;
+			NewTile->TileState = TileState;
 			NewTile->SetTileMaterial(TileMaterial);
 			NewTile->SetGridAddress(SpawnGridAddress);
 			MapTiles[SpawnGridAddress] = NewTile;
@@ -88,7 +91,7 @@ FVector AGrid::GetLocationFromGridAddress(int32 GridAddress) const
 	FVector OutLocation = FVector(-(GridWidth * 0.5f) * TileSize.X + (TileSize.X * 0.5f), 0.0f, -(GridHeight * 0.5f) * TileSize.Y + (TileSize.Y * 0.5f));
 	check(GridWidth > 0);
 	OutLocation.X += TileSize.X * (float)(GridAddress % GridWidth);
-	OutLocation.Y += TileSize.Y * (float)(GridAddress / GridWidth);
+	OutLocation.Z += TileSize.Y * (float)(GridAddress / GridWidth);
 	OutLocation += Center;
 
 	return OutLocation;
@@ -98,7 +101,7 @@ FVector AGrid::GetLocationFromGridAddressWithOffset(int32 GridAddress, int32 XOf
 {
 	FVector OutLocation = GetLocationFromGridAddress(GridAddress);
 	OutLocation.X += TileSize.X * (float)(XOffsetInTiles);
-	OutLocation.Y += TileSize.Y * (float)(YOffsetInTiles);
+	OutLocation.Z += TileSize.Y * (float)(YOffsetInTiles);
 	return OutLocation;
 }
 
@@ -138,4 +141,11 @@ bool AGrid::AreAddressesNeighbors(int32 GridAddressA, int32 GridAddressB) const
 		return ((GridAddressOffset == 1 && FMath::Min(GridAddressA, GridAddressB) % GridWidth != GridWidth - 1) || (GridAddressOffset == GridWidth));
 	}
 	return false;
+}
+
+void AGrid::OnTileWasSelected(ATile* NewSelectedTile)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Tile Selected"));
+	NewSelectedTile->TileState = ETileState::ETS_Occupied;
+	NewSelectedTile->onStateChange();
 }

@@ -34,11 +34,11 @@ public:
 	//UFUNCTION()
 	//void TileEnter(ETouchIndex::Type FingerIndex, AActor* TouchedActor);
 
-	//UFUNCTION()
-	//void TilePress_Mouse(AActor* ClickedActor, FKey ButtonClicked);
+	UFUNCTION()
+	void TilePress_Mouse(UPrimitiveComponent* TouchedComponent, FKey ButtonClicked);
 
-	//UFUNCTION()
-	//void TileEnter_Mouse(AActor* MousedOverActor);
+	UFUNCTION()
+	void TileEnter_Mouse(AActor* MousedOverActor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Placement Events")
 	void SetPlacement();
@@ -66,6 +66,17 @@ public:
 
 	UPROPERTY()
 	TEnumAsByte<ETileState::Type> TileState;
+
+	UPROPERTY(EditAnywhere)
+	class UMaterialInstanceConstant* InvalidMaterial;
+
+	UPROPERTY(EditAnywhere)
+	class UMaterialInstanceConstant* ValidMaterial;
+
+	UPROPERTY(EditAnywhere)
+	class UMaterialInstanceConstant* EmptyMaterial;
+
+	void onStateChange();
 
 protected:
 	FVector PlacementLocation;
