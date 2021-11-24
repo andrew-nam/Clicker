@@ -17,8 +17,8 @@ namespace ETileState
 	enum Type
 	{
 		ETS_Empty,
-		ETS_Occupied,
-		ETS_Blocked
+		ETS_Invalid,
+		ETS_Valid
 	};
 }
 

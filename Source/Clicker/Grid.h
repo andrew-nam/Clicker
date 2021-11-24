@@ -79,6 +79,10 @@ public:
 	/** React to a tile being clicked. */
 	void OnTileWasSelected(ATile* NewSelectedTile);
 
+	void IsObjectAreaValid(ATile* CenterTile, FIntPoint ObjectDimensions);
+	
+	FIntPoint GetObjectCenter(FIntPoint ObjectDimensions);
+
 	ATile* GetCurrentlySelectedTile() const { return CurrentlySelectedTile; };
 
 protected:

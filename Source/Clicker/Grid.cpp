@@ -146,6 +146,35 @@ bool AGrid::AreAddressesNeighbors(int32 GridAddressA, int32 GridAddressB) const
 void AGrid::OnTileWasSelected(ATile* NewSelectedTile)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Tile Selected"));
-	NewSelectedTile->TileState = ETileState::ETS_Occupied;
+	NewSelectedTile->TileState = ETileState::ETS_Invalid;
 	NewSelectedTile->onStateChange();
+}
+
+void AGrid::IsObjectAreaValid(ATile* CenterTile, FIntPoint ObjectDimensions)
+{
+	FVector CenterLocation = GetLocationFromGridAddress(CenterTile->GetGridAddress());
+	FIntPoint ObjectCenter = GetObjectCenter(ObjectDimensions);
+	bool isValid = true;
+	TArray<int32> ObjectGridAddressArray;
+	for (int x = 0; x <= ObjectDimensions.X; x++)
+	{
+		for (int y = 0; y <= ObjectDimensions.Y; y++)
+		{
+			int GridAddress = CenterTile->GetGridAddress() - ObjectCenter.X - (GridWidth * ObjectCenter.Y) + x + GridWidth * y;
+			ATile* NeighborTile = GetTileFromGridAddress(GridAddress);
+			if (NeighborTile->TileState == ETileState::ETS_Invalid || isValid == false)
+			{
+				NeighborTile->TileState = ETileState::ETS_Invalid;
+			}
+		}
+	}
+
+}
+
+FIntPoint AGrid::GetObjectCenter(FIntPoint ObjectDimensions)
+{
+	FIntPoint Center;
+	Center.X = ObjectDimensions.X / 2;
+	Center.Y = ObjectDimensions.Y / 2;
+	return Center;
 }

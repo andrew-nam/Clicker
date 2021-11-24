@@ -54,6 +54,7 @@ void ATile::TileEnter_Mouse(AActor* MousedOverActor)
 {
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
 	{
+		Grid->IsTileAreaValid(this);
 		if (PC->IsInputKeyDown(EKeys::LeftMouseButton))
 		{
 			
@@ -70,11 +71,11 @@ void ATile::onStateChange()
 		SetTileMaterial_Implementation(EmptyMaterial);
 		break;
 
-	case ETileState::ETS_Blocked :
-		SetTileMaterial_Implementation(InvalidMaterial);
+	case ETileState::ETS_Valid :
+		SetTileMaterial_Implementation(ValidMaterial);
 		break;
 
-	case ETileState::ETS_Occupied :
+	case ETileState::ETS_Invalid :
 		SetTileMaterial_Implementation(InvalidMaterial);
 		break;
 	}
