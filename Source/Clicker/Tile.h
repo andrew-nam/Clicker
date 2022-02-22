@@ -40,6 +40,9 @@ public:
 	UFUNCTION()
 	void TileEnter_Mouse(AActor* MousedOverActor);
 
+	UFUNCTION()
+	void TileLeave_Mouse();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Placement Events")
 	void SetPlacement();
 
@@ -66,6 +69,9 @@ public:
 
 	UPROPERTY()
 	TEnumAsByte<ETileState::Type> TileState;
+
+	UPROPERTY()
+	TEnumAsByte<ETileState::Type> TempTileState;
 
 	UPROPERTY(EditAnywhere)
 	class UMaterialInstanceConstant* InvalidMaterial;

@@ -150,30 +150,57 @@ void AGrid::OnTileWasSelected(ATile* NewSelectedTile)
 	NewSelectedTile->onStateChange();
 }
 
-void AGrid::IsObjectAreaValid(ATile* CenterTile, FIntPoint ObjectDimensions)
+void AGrid::OnTileWasEntered(ATile* EnteredTile)
 {
-	FVector CenterLocation = GetLocationFromGridAddress(CenterTile->GetGridAddress());
-	FIntPoint ObjectCenter = GetObjectCenter(ObjectDimensions);
-	bool isValid = true;
-	TArray<int32> ObjectGridAddressArray;
-	for (int x = 0; x <= ObjectDimensions.X; x++)
-	{
-		for (int y = 0; y <= ObjectDimensions.Y; y++)
-		{
-			int GridAddress = CenterTile->GetGridAddress() - ObjectCenter.X - (GridWidth * ObjectCenter.Y) + x + GridWidth * y;
-			ATile* NeighborTile = GetTileFromGridAddress(GridAddress);
-			if (NeighborTile->TileState == ETileState::ETS_Invalid || isValid == false)
-			{
-				NeighborTile->TileState = ETileState::ETS_Invalid;
-			}
-		}
-	}
 
 }
 
-FIntPoint AGrid::GetObjectCenter(FIntPoint ObjectDimensions)
+void AGrid::OnTileWasLeft()
+{
+	if (ObjectTiles.IsValidIndex(0))
+	{
+		for (ATile* ObjectTile : ObjectTiles)
+		{
+			ObjectTile->TempTileState = ObjectTile->TileState;
+		}
+	}
+}
+
+void AGrid::IsObjectAreaValid(TArray<ATile*> ObjectTileArray)
+{
+	bool isValid = true;
+	for (ATile* ObjectTile : ObjectTileArray)
+	{
+		isValid = (ObjectTile->TileState == ETileState::ETS_Valid || ObjectTile->TileState == ETileState::ETS_Empty);
+		if (!isValid)
+		{
+			/*for (ATile* ObjectTile : ObjectTileArray)
+			{
+				ObjectTile->TempTileState = ETileState::ETS_Invalid;
+				ObjectTile->onStateChange();
+			}*/
+			break;
+		}
+		ObjectTile->TempTileState = ETileState::ETS_Valid;
+		ObjectTile->onStateChange();
+	}
+}
+
+FIntPoint AGrid::GetObjectCenter(int GridAddress, FIntPoint ObjectDimensions)
 {
 	FIntPoint Center;
+
+	//if (ObjectDimensions.X % 2 == 0)
+	//	if (GetLocationFromGridAddress(GridAddress).X /*> cursorLocation*/ )
+	//		//Center.X = math.floor(ObjectDimensions.X / 2);
+	//	else
+	//		/*Center.X = math.ceiling(ObjectDimensions.X / 2)*/;
+	//else
+
+
+		
+
+
 	Center.X = ObjectDimensions.X / 2;
 	Center.Y = ObjectDimensions.Y / 2;
 	return Center;

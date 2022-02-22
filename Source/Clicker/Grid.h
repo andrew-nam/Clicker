@@ -35,6 +35,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ATile*> MapTiles;
 
+	UPROPERTY()
+	TArray<ATile*> ObjectTiles;
+
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//TArray<FTileType> TileLibrary;
 
@@ -79,9 +82,15 @@ public:
 	/** React to a tile being clicked. */
 	void OnTileWasSelected(ATile* NewSelectedTile);
 
-	void IsObjectAreaValid(ATile* CenterTile, FIntPoint ObjectDimensions);
+	void OnTileWasEntered(ATile* EnteredTile);
+
+	void OnTileWasLeft();
+
+	void IsObjectAreaValid(TArray<ATile*> ObjectTileArray);
+
+	TArray<ATile*> GetObjectTiles(FIntPoint ObjectDimensions);
 	
-	FIntPoint GetObjectCenter(FIntPoint ObjectDimensions);
+	FIntPoint GetObjectCenter(int GridAddress, FIntPoint ObjectDimensions);
 
 	ATile* GetCurrentlySelectedTile() const { return CurrentlySelectedTile; };
 

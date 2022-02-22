@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Tile.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Grid.h"
 #include "Kismet/GameplayStatics.h"
-#include "Tile.h"
 
 ATile::ATile()
 {
@@ -14,7 +14,9 @@ ATile::ATile()
 	{
 		RootComponent->SetMobility(EComponentMobility::Movable);
 	}
-	GetRenderComponent()->OnClicked.AddDynamic(this, &ATile::TilePress_Mouse);
+	GetRenderComponent()->OnClicked.AddDynamic(this, &ATile::TilePress_Mouse);/*
+	GetRenderComponent()->OnBeginCursorOver.AddDynamic(this, &ATile::TileEnter_Mouse);
+	GetRenderComponent()->OnEndCursorOver.AddDynamic(this, &ATile::TileLeave_Mouse);*/
 }
 
 void ATile::BeginPlay()
@@ -54,7 +56,8 @@ void ATile::TileEnter_Mouse(AActor* MousedOverActor)
 {
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
 	{
-		Grid->IsTileAreaValid(this);
+		Grid->OnTileWasEntered((ATile*) MousedOverActor);
+		//Grid->IsTileAreaValid(this);
 		if (PC->IsInputKeyDown(EKeys::LeftMouseButton))
 		{
 			
@@ -62,10 +65,18 @@ void ATile::TileEnter_Mouse(AActor* MousedOverActor)
 	}
 }
 
+void ATile::TileLeave_Mouse()
+{
+	if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+	{
+		Grid->OnTileWasLeft();
+	}
+}
+
 void ATile::onStateChange()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Changing State"));
-	switch (TileState)
+	switch (TempTileState)
 	{
 	case ETileState::ETS_Empty :
 		SetTileMaterial_Implementation(EmptyMaterial);
