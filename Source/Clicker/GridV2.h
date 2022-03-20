@@ -47,16 +47,20 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UMaterial* SelectionMaterial;
 
-
+	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	bool WorldLocationToTile(FVector WorldLocation, int32& OutRow, int32& OutColumn);
 
+	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	bool TileToGridLocation(int32 Row, int32 Column, bool isCenter, FVector2D& OutGridLocation);
 
+	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	void SetSelectedTile(int32 Row, int32 Column);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:	
 	// Called every frame
@@ -64,13 +68,17 @@ public:
 
 private:
 	
-	class UProceduralMeshComponent* GridDrawingComponent;
+	class UProceduralMeshComponent* GridLineDrawingComponent;
+
+	class UProceduralMeshComponent* GridSelectionDrawingComponent;
 
 	void CreateLine(FVector Start, FVector End, float LineThickness, TArray<FVector>& OutVertices, TArray<int32>& OutTriangles);
 
 	float GetGridWidth();
 
 	float GetGridHeight();
+
+	bool isTileValid(int32 Row, int32 Column);
 
 	UMaterialInstanceDynamic* CreateMaterialInstance(FLinearColor Color, float Opacity);
 
