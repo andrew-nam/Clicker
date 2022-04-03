@@ -21,6 +21,8 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
+	GridSize = NumRows * NumColumns;
+
 	UMaterialInstanceDynamic* LineMaterialInstance = CreateMaterialInstance(LineColor, LineOpacity);
 	UMaterialInstanceDynamic* SelectionMaterialInstance = CreateMaterialInstance(SelectionColor, SelectionOpacity);
 
@@ -84,7 +86,7 @@ bool AGridV2::WorldLocationToTile(FVector WorldLocation, int32& OutRow, int32& O
 {
 	OutRow = floor((WorldLocation.X - GetActorLocation().X) / GetGridWidth() * NumRows);
 	OutColumn = floor((WorldLocation.Y - GetActorLocation().Y) / GetGridHeight() * NumColumns);
-	return isTileValid(OutRow, OutColumn);
+	return IsTileValid(OutRow, OutColumn);
 	
 }
 
@@ -97,7 +99,7 @@ bool AGridV2::TileToGridLocation(int32 Row, int32 Column, bool isCenter, FVector
 		OutGridLocation.X += TileSize / 2;
 		OutGridLocation.Y += TileSize / 2;
 	}
-	return isTileValid(Row, Column);
+	return IsTileValid(Row, Column);
 }
 
 void AGridV2::SetSelectedTile(int32 Row, int32 Column)
@@ -115,6 +117,93 @@ void AGridV2::SetSelectedTile(int32 Row, int32 Column)
 
 }
 
+FTile AGridV2::IndexToTile(int32 Index)
+{
+	FTile Tile;
+	Tile.X = Index % NumColumns;
+	Tile.Y = Index / NumColumns;
+
+	return Tile;
+}
+
+int32 AGridV2::TileToIndex(FTile Tile)
+{
+	return Tile.X + Tile.Y * NumColumns;
+}
+
+APlaceableObject* AGridV2::GetObjectAtIndex(int32 Index)
+{
+	if (PlacedObjects.IsValidIndex(Index))
+	{
+		return PlacedObjects[Index];
+	}
+	return nullptr;
+}
+
+bool AGridV2::TryPlaceObject(APlaceableObject* ObjectToPlace)
+{
+	check(IsValid(ObjectToPlace));
+
+	int32 index = 0;
+	bool result = false;
+	for (APlaceableObject* PlacedObject : PlacedObjects)
+	{ 
+		if (IsRoomAvailable(ObjectToPlace, index))
+		{
+			PlaceObjectAtIndex(ObjectToPlace, index);
+			result = true;
+		}
+		index++;
+	}
+	return result;
+}
+
+bool AGridV2::IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftIndex)
+{
+	check(IsValid(ObjectToPlace));
+
+
+	FTile TopLeftTile = IndexToTile(TopLeftIndex);
+	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
+	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
+	{
+		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
+		{
+			if (!IsTileValid(x, y))
+			{
+				return false;
+			}
+
+			int32 CurrentIndex = TileToIndex(FTile(x, y));
+			if (!PlacedObjects.IsValidIndex(CurrentIndex))
+			{
+				return false;
+			}
+
+			if (IsValid(GetObjectAtIndex(CurrentIndex)))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool AGridV2::PlaceObjectAtIndex(APlaceableObject* ObjectToPlace, int32 TopLeftIndex)
+{
+	check(IsValid(ObjectToPlace));
+
+	FTile TopLeftTile = IndexToTile(TopLeftIndex);
+	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
+	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
+	{
+		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
+		{
+			PlacedObjects[TileToIndex(FTile(x, y))] = ObjectToPlace;
+		}
+	}
+	IsDirty = true;
+}
 
 UMaterialInstanceDynamic* AGridV2::CreateMaterialInstance(FLinearColor Color, float Opacity)
 {
@@ -153,9 +242,7 @@ void AGridV2::CreateLine(FVector Start, FVector End, float Thickness, TArray<FVe
 	OutVertices.Add(End - (ThicknessDirection * HalfThickness));
 }
 
-bool AGridV2::isTileValid(int32 Row, int32 Column)
+bool AGridV2::IsTileValid(int32 Row, int32 Column)
 {
 	return Row >= 0 && Row < NumRows && Column >= 0 && Column < NumColumns;
 }
-
-

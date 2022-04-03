@@ -6,7 +6,20 @@
 #include "Math/Color.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "PlaceableObject.h"
 #include "GridV2.generated.h"
+
+USTRUCT(BlueprintType)
+struct FTile
+{
+	GENERATED_USTRUCT_BODY();
+	FTile();
+
+	FTile(int32 x, int32 y) { X = x; Y = y; };
+
+	int32 X;
+	int32 Y;
+};
 
 UCLASS()
 class CLICKER_API AGridV2 : public AActor
@@ -56,6 +69,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	void SetSelectedTile(int32 Row, int32 Column);
 
+	UFUNCTION(BlueprintCallable, Category = "Object Placement")
+	bool TryPlaceObject(APlaceableObject* ObjectToPlace);
+
+	UFUNCTION(BlueprintCallable, Category = "Object Placement")
+	bool PlaceObjectAtIndex(APlaceableObject* ObjectToPlace, int32 TopLeftIndex);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -78,9 +97,23 @@ private:
 
 	float GetGridHeight();
 
-	bool isTileValid(int32 Row, int32 Column);
+	TArray<APlaceableObject*> PlacedObjects;
+	
+	bool IsDirty;
+
+	bool IsTileValid(int32 Row, int32 Column);
+
+	bool IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftIndex);
 
 	UMaterialInstanceDynamic* CreateMaterialInstance(FLinearColor Color, float Opacity);
+
+	FTile IndexToTile(int32 Index);
+
+	int32 TileToIndex(FTile Tile);
+
+	APlaceableObject* GetObjectAtIndex(int32 Index);
+
+	int GridSize;
 
 	/*
 	ATile* GetTileFromGridAddress(int32 GridAddress) const;
