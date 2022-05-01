@@ -56,6 +56,8 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 	GridSelectionDrawingComponent->SetMaterial(0, SelectionMaterialInstance);
 	GridSelectionDrawingComponent->SetVisibility(false);
 
+	PlacedObjects.Init(nullptr, GridSize);
+
 }
 
 // Called when the game starts or when spawned
@@ -117,16 +119,16 @@ void AGridV2::SetSelectedTile(int32 Row, int32 Column)
 
 }
 
-FTile AGridV2::IndexToTile(int32 Index)
+FTileV2 AGridV2::IndexToTile(int32 Index)
 {
-	FTile Tile;
+	FTileV2 Tile;
 	Tile.X = Index % NumColumns;
 	Tile.Y = Index / NumColumns;
 
 	return Tile;
 }
 
-int32 AGridV2::TileToIndex(FTile Tile)
+int32 AGridV2::TileToIndex(FTileV2 Tile)
 {
 	return Tile.X + Tile.Y * NumColumns;
 }
@@ -163,7 +165,7 @@ bool AGridV2::IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftInde
 	check(IsValid(ObjectToPlace));
 
 
-	FTile TopLeftTile = IndexToTile(TopLeftIndex);
+	FTileV2 TopLeftTile = IndexToTile(TopLeftIndex);
 	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
 	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
 	{
@@ -174,7 +176,7 @@ bool AGridV2::IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftInde
 				return false;
 			}
 
-			int32 CurrentIndex = TileToIndex(FTile(x, y));
+			int32 CurrentIndex = TileToIndex(FTileV2(x, y));
 			if (!PlacedObjects.IsValidIndex(CurrentIndex))
 			{
 				return false;
@@ -192,17 +194,20 @@ bool AGridV2::IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftInde
 bool AGridV2::PlaceObjectAtIndex(APlaceableObject* ObjectToPlace, int32 TopLeftIndex)
 {
 	check(IsValid(ObjectToPlace));
+	bool result = false;
 
-	FTile TopLeftTile = IndexToTile(TopLeftIndex);
+	FTileV2 TopLeftTile = IndexToTile(TopLeftIndex);
 	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
 	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
 	{
 		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
 		{
-			PlacedObjects[TileToIndex(FTile(x, y))] = ObjectToPlace;
+			PlacedObjects[TileToIndex(FTileV2(x, y))] = ObjectToPlace;
 		}
 	}
+	result = true;
 	IsDirty = true;
+	return result;
 }
 
 UMaterialInstanceDynamic* AGridV2::CreateMaterialInstance(FLinearColor Color, float Opacity)

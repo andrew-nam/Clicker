@@ -10,12 +10,12 @@
 #include "GridV2.generated.h"
 
 USTRUCT(BlueprintType)
-struct FTile
+struct FTileV2
 {
 	GENERATED_USTRUCT_BODY();
-	FTile();
+	FTileV2() { X = 0; Y = 0; };
 
-	FTile(int32 x, int32 y) { X = x; Y = y; };
+	FTileV2(int32 x, int32 y) { X = x; Y = y; };
 
 	int32 X;
 	int32 Y;
@@ -107,9 +107,9 @@ private:
 
 	UMaterialInstanceDynamic* CreateMaterialInstance(FLinearColor Color, float Opacity);
 
-	FTile IndexToTile(int32 Index);
+	FTileV2 IndexToTile(int32 Index);
 
-	int32 TileToIndex(FTile Tile);
+	int32 TileToIndex(FTileV2 Tile);
 
 	APlaceableObject* GetObjectAtIndex(int32 Index);
 

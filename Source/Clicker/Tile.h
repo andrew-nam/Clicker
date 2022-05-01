@@ -54,7 +54,7 @@ public:
 	//void OnPlaced();
 	//virtual void OnPlaced_Implementation();
 
-	UPROPERTY(Category = "Sprites", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		UPROPERTY(Category = "Sprites", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UPaperSpriteComponent* SpriteComponent;
 
 	ATile();
