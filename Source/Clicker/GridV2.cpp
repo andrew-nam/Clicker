@@ -13,8 +13,7 @@ AGridV2::AGridV2()
 
 	GridLineDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("GridLineDrawingComponent");
 	GridSelectionDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("GridSelectionDrawingComponent");
-
-
+	FloorDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("FloorDrawingComponent");
 }
 
 void AGridV2::OnConstruction(const FTransform& Transform)
@@ -25,6 +24,7 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 
 	UMaterialInstanceDynamic* LineMaterialInstance = CreateMaterialInstance(LineColor, LineOpacity);
 	UMaterialInstanceDynamic* SelectionMaterialInstance = CreateMaterialInstance(SelectionColor, SelectionOpacity);
+	UMaterialInstanceDynamic* FloorMaterialInstance = CreateMaterialInstance(FLinearColor::White, 1);
 
 	float LineStart;
 	float LineEnd;
@@ -48,6 +48,11 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 	GridLineDrawingComponent->CreateMeshSection(0, LineVertices, Triangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 	GridLineDrawingComponent->SetMaterial(0, LineMaterialInstance);
 
+	TArray<FVector> FloorVertices;
+	TArray<int32> FloorTriangles;
+	CreateFloorMesh(GetGridWidth(), GetGridHeight(), FloorVertices, FloorTriangles);
+	FloorDrawingComponent->CreateMeshSection(0, FloorVertices, FloorTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), true);
+	FloorDrawingComponent->SetMaterial(0, FloorMaterialInstance);
 
 	TArray<FVector> SelectionVertices;
 	TArray<int32> SelectionTriangles;
@@ -55,6 +60,8 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 	GridSelectionDrawingComponent->CreateMeshSection(0, SelectionVertices, SelectionTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 	GridSelectionDrawingComponent->SetMaterial(0, SelectionMaterialInstance);
 	GridSelectionDrawingComponent->SetVisibility(false);
+	// Need to set Trunslucent sort priority to avoid selection component from disappearing over the floor component.
+	GridSelectionDrawingComponent->SetTranslucentSortPriority(1);
 
 	PlacedObjects.Init(nullptr, GridSize);
 
@@ -227,6 +234,21 @@ UMaterialInstanceDynamic* AGridV2::CreateMaterialInstance(FLinearColor Color, fl
 	}
 }
 
+
+void AGridV2::CreateFloorMesh(float GridWidth, float GridHeight, TArray<FVector>& OutVertices, TArray<int32>& OutTriangles)
+{
+	OutTriangles.Add(OutVertices.Num() + 2);
+	OutTriangles.Add(OutVertices.Num() + 1);
+	OutTriangles.Add(OutVertices.Num() + 0);
+	OutTriangles.Add(OutVertices.Num() + 2);
+	OutTriangles.Add(OutVertices.Num() + 3);
+	OutTriangles.Add(OutVertices.Num() + 1);
+
+	OutVertices.Add(FVector(0, 0, 0));
+	OutVertices.Add(FVector(GridWidth, 0, 0));
+	OutVertices.Add(FVector(0, GridHeight, 0));
+	OutVertices.Add(FVector(GridWidth, GridHeight, 0));
+}
 
 void AGridV2::CreateLine(FVector Start, FVector End, float Thickness, TArray<FVector> &OutVertices, TArray<int32> &OutTriangles)
 {

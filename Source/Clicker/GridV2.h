@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UMaterial* SelectionMaterial;
 
+	UPROPERTY(EditAnywhere)
+	class UMaterial* FloorMaterial;
+
 	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	bool WorldLocationToTile(FVector WorldLocation, int32& OutRow, int32& OutColumn);
 
@@ -90,6 +93,10 @@ private:
 	class UProceduralMeshComponent* GridLineDrawingComponent;
 
 	class UProceduralMeshComponent* GridSelectionDrawingComponent;
+
+	class UProceduralMeshComponent* FloorDrawingComponent;
+
+	void CreateFloorMesh(float GridWidth, float GridHeight, TArray<FVector>& OutVertices, TArray<int32>& OutTriangles);
 
 	void CreateLine(FVector Start, FVector End, float LineThickness, TArray<FVector>& OutVertices, TArray<int32>& OutTriangles);
 
