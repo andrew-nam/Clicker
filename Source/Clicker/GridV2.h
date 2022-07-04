@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ProceduralMeshComponent.h"
+#include "GridDataComponent.h"
 #include "Math/Color.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -72,12 +73,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	void SetSelectedTile(int32 Row, int32 Column);
 
-	UFUNCTION(BlueprintCallable, Category = "Object Placement")
-	bool TryPlaceObject(APlaceableObject* ObjectToPlace);
-
-	UFUNCTION(BlueprintCallable, Category = "Object Placement")
-	bool PlaceObjectAtIndex(APlaceableObject* ObjectToPlace, int32 TopLeftIndex);
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -96,6 +91,8 @@ private:
 
 	class UProceduralMeshComponent* FloorDrawingComponent;
 
+	class UGridDataComponent* GridDataComponent;
+
 	void CreateFloorMesh(float GridWidth, float GridHeight, TArray<FVector>& OutVertices, TArray<int32>& OutTriangles);
 
 	void CreateLine(FVector Start, FVector End, float LineThickness, TArray<FVector>& OutVertices, TArray<int32>& OutTriangles);
@@ -104,23 +101,10 @@ private:
 
 	float GetGridHeight();
 
-	TArray<APlaceableObject*> PlacedObjects;
-	
-	bool IsDirty;
-
 	bool IsTileValid(int32 Row, int32 Column);
-
-	bool IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftIndex);
 
 	UMaterialInstanceDynamic* CreateMaterialInstance(FLinearColor Color, float Opacity);
 
-	FTileV2 IndexToTile(int32 Index);
-
-	int32 TileToIndex(FTileV2 Tile);
-
-	APlaceableObject* GetObjectAtIndex(int32 Index);
-
-	int GridSize;
 
 	/*
 	ATile* GetTileFromGridAddress(int32 GridAddress) const;

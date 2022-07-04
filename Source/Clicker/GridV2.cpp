@@ -11,16 +11,17 @@ AGridV2::AGridV2()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
 
+	FloorDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("FloorDrawingComponent");
+	SetRootComponent(FloorDrawingComponent);
 	GridLineDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("GridLineDrawingComponent");
 	GridSelectionDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("GridSelectionDrawingComponent");
-	FloorDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("FloorDrawingComponent");
+	GridDataComponent = CreateDefaultSubobject<UGridDataComponent>("GridDataComponent");
+	GridDataComponent->Init(NumRows, NumColumns);
 }
 
 void AGridV2::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
-	GridSize = NumRows * NumColumns;
 
 	UMaterialInstanceDynamic* LineMaterialInstance = CreateMaterialInstance(LineColor, LineOpacity);
 	UMaterialInstanceDynamic* SelectionMaterialInstance = CreateMaterialInstance(SelectionColor, SelectionOpacity);
@@ -47,6 +48,7 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 	// Create the procedural mesh for the lines
 	GridLineDrawingComponent->CreateMeshSection(0, LineVertices, Triangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 	GridLineDrawingComponent->SetMaterial(0, LineMaterialInstance);
+	GridLineDrawingComponent->SetTranslucentSortPriority(1);
 
 	TArray<FVector> FloorVertices;
 	TArray<int32> FloorTriangles;
@@ -60,10 +62,8 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 	GridSelectionDrawingComponent->CreateMeshSection(0, SelectionVertices, SelectionTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 	GridSelectionDrawingComponent->SetMaterial(0, SelectionMaterialInstance);
 	GridSelectionDrawingComponent->SetVisibility(false);
-	// Need to set Trunslucent sort priority to avoid selection component from disappearing over the floor component.
+	// Need to set Translucent sort priority to avoid selection component from disappearing over the floor component.
 	GridSelectionDrawingComponent->SetTranslucentSortPriority(1);
-
-	PlacedObjects.Init(nullptr, GridSize);
 
 }
 
@@ -124,97 +124,6 @@ void AGridV2::SetSelectedTile(int32 Row, int32 Column)
 		GridSelectionDrawingComponent->SetVisibility(false);
 	}
 
-}
-
-FTileV2 AGridV2::IndexToTile(int32 Index)
-{
-	FTileV2 Tile;
-	Tile.X = Index % NumColumns;
-	Tile.Y = Index / NumColumns;
-
-	return Tile;
-}
-
-int32 AGridV2::TileToIndex(FTileV2 Tile)
-{
-	return Tile.X + Tile.Y * NumColumns;
-}
-
-APlaceableObject* AGridV2::GetObjectAtIndex(int32 Index)
-{
-	if (PlacedObjects.IsValidIndex(Index))
-	{
-		return PlacedObjects[Index];
-	}
-	return nullptr;
-}
-
-bool AGridV2::TryPlaceObject(APlaceableObject* ObjectToPlace)
-{
-	check(IsValid(ObjectToPlace));
-
-	int32 index = 0;
-	bool result = false;
-	for (APlaceableObject* PlacedObject : PlacedObjects)
-	{ 
-		if (IsRoomAvailable(ObjectToPlace, index))
-		{
-			PlaceObjectAtIndex(ObjectToPlace, index);
-			result = true;
-		}
-		index++;
-	}
-	return result;
-}
-
-bool AGridV2::IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftIndex)
-{
-	check(IsValid(ObjectToPlace));
-
-
-	FTileV2 TopLeftTile = IndexToTile(TopLeftIndex);
-	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
-	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
-	{
-		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
-		{
-			if (!IsTileValid(x, y))
-			{
-				return false;
-			}
-
-			int32 CurrentIndex = TileToIndex(FTileV2(x, y));
-			if (!PlacedObjects.IsValidIndex(CurrentIndex))
-			{
-				return false;
-			}
-
-			if (IsValid(GetObjectAtIndex(CurrentIndex)))
-			{
-				return false;
-			}
-		}
-	}
-	return true;
-}
-
-bool AGridV2::PlaceObjectAtIndex(APlaceableObject* ObjectToPlace, int32 TopLeftIndex)
-{
-	check(IsValid(ObjectToPlace));
-	bool result = false;
-
-	FTileV2 TopLeftTile = IndexToTile(TopLeftIndex);
-	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
-	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
-	{
-		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
-		{
-			PlacedObjects[TileToIndex(FTileV2(x, y))] = ObjectToPlace;
-		}
-	}
-	result = true;
-	IsDirty = true;
-	return result;
 }
 
 UMaterialInstanceDynamic* AGridV2::CreateMaterialInstance(FLinearColor Color, float Opacity)
