@@ -16,7 +16,6 @@ AGridV2::AGridV2()
 	GridLineDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("GridLineDrawingComponent");
 	GridSelectionDrawingComponent = CreateDefaultSubobject<UProceduralMeshComponent>("GridSelectionDrawingComponent");
 	GridDataComponent = CreateDefaultSubobject<UGridDataComponent>("GridDataComponent");
-	GridDataComponent->Init(NumRows, NumColumns);
 }
 
 void AGridV2::OnConstruction(const FTransform& Transform)
@@ -65,12 +64,15 @@ void AGridV2::OnConstruction(const FTransform& Transform)
 	// Need to set Translucent sort priority to avoid selection component from disappearing over the floor component.
 	GridSelectionDrawingComponent->SetTranslucentSortPriority(1);
 
+
 }
 
 // Called when the game starts or when spawned
 void AGridV2::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GridDataComponent->Init(NumRows, NumColumns);
 
 }
 
@@ -181,4 +183,21 @@ void AGridV2::CreateLine(FVector Start, FVector End, float Thickness, TArray<FVe
 bool AGridV2::IsTileValid(int32 Row, int32 Column)
 {
 	return Row >= 0 && Row < NumRows && Column >= 0 && Column < NumColumns;
+}
+
+bool AGridV2::TryPlaceObject(APlaceableObject* ObjectToPlace, FVector WorldLocation)
+{
+	check(IsValid(ObjectToPlace));
+	int32 Row;
+	int32 Column;
+	if (WorldLocationToTile(WorldLocation, Row, Column))
+	{
+		if (GridDataComponent->TryPlaceObjectAtLocation(ObjectToPlace, FVector2D(Row, Column)))
+		{
+			// TODO: Z is hard programmed, change this, also need to change APlaceableObject's world location setting to proper set for the upperleft tile
+			ObjectToPlace->SetActorLocation(WorldLocation);
+			return true;
+		}
+	}
+	return false;
 }

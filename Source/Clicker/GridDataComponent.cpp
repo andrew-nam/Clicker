@@ -70,7 +70,7 @@ bool UGridDataComponent::TryPlaceObject(APlaceableObject* ObjectToPlace)
 	bool result = false;
 	for (APlaceableObject* PlacedObject : PlacedObjects)
 	{
-		if (IsRoomAvailable(ObjectToPlace, index))
+		if (IsRoomAvailable(ObjectToPlace, IndexToTile(index)))
 		{
 			PlaceObjectAtIndex(ObjectToPlace, index);
 			result = true;
@@ -80,12 +80,23 @@ bool UGridDataComponent::TryPlaceObject(APlaceableObject* ObjectToPlace)
 	return result;
 }
 
-bool UGridDataComponent::IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftIndex)
+bool UGridDataComponent::TryPlaceObjectAtLocation(APlaceableObject* ObjectToPlace, FVector2D TopLeftTile)
+{
+	check(IsValid(ObjectToPlace));
+	
+	bool result = false;
+	if (IsRoomAvailable(ObjectToPlace, TopLeftTile))
+	{
+		PlaceObjectAtIndex(ObjectToPlace, TileToIndex(TopLeftTile));
+		result = true;
+	}
+	return result;
+}
+
+bool UGridDataComponent::IsRoomAvailable(APlaceableObject* ObjectToPlace, FVector2D TopLeftTile)
 {
 	check(IsValid(ObjectToPlace));
 
-
-	FVector2D TopLeftTile = IndexToTile(TopLeftIndex);
 	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
 	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
 	{

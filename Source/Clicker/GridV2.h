@@ -73,6 +73,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "World/2D Transform")
 	void SetSelectedTile(int32 Row, int32 Column);
 
+	UFUNCTION(BlueprintCallable, Category = "Object Placement")
+	bool TryPlaceObject(APlaceableObject* ObjectToPlace, FVector WorldLocation);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

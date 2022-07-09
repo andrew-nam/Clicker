@@ -32,7 +32,9 @@ public:
 
 	bool TryPlaceObject(APlaceableObject* ObjectToPlace);
 
-	bool IsRoomAvailable(APlaceableObject* ObjectToPlace, int32 TopLeftIndex);
+	bool TryPlaceObjectAtLocation(APlaceableObject* ObjectToPlace, FVector2D TopLeftTile);
+
+	bool IsRoomAvailable(APlaceableObject* ObjectToPlace, FVector2D TopLeftTile);
 
 	bool PlaceObjectAtTile(APlaceableObject* ObjectToPlace, int32 TopLeftIndex);
 
