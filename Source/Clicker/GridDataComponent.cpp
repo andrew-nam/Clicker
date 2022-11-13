@@ -98,9 +98,9 @@ bool UGridDataComponent::IsRoomAvailable(APlaceableObject* ObjectToPlace, FVecto
 	check(IsValid(ObjectToPlace));
 
 	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
-	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
+	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X; x++)
 	{
-		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
+		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y; y++)
 		{
 			if (!IsTileValid(x, y))
 			{
@@ -129,9 +129,9 @@ bool UGridDataComponent::PlaceObjectAtIndex(APlaceableObject* ObjectToPlace, int
 
 	FVector2D TopLeftTile = IndexToTile(TopLeftIndex);
 	FIntPoint PlacedObjectDimensions = ObjectToPlace->GetDimensions();
-	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X - 1; x++)
+	for (int32 x = TopLeftTile.X; x < TopLeftTile.X + PlacedObjectDimensions.X; x++)
 	{
-		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y - 1; y++)
+		for (int32 y = TopLeftTile.Y; y < TopLeftTile.Y + PlacedObjectDimensions.Y; y++)
 		{
 			PlacedObjects[TileToIndex(FVector2D(x, y))] = ObjectToPlace;
 		}

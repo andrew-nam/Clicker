@@ -18,3 +18,13 @@ void AClickerGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+AGridV2 * AClickerGameModeBase::GetGrid()
+{
+	TArray<AActor*> Grids;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGridV2::StaticClass(), Grids);
+	if (Grids.IsValidIndex(0))
+	{
+		return Cast<AGridV2>(Grids[0]);
+	}
+}

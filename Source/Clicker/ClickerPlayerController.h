@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void SetMoney(int32 NewMoney);
 
+	UFUNCTION(BlueprintCallable, Category = "Grid Interaction")
+	void AClickerPlayerController::HighlightGridUnderCursor();
+
 protected:
 	UPROPERTY()
 	int32 Money;
@@ -36,4 +39,5 @@ protected:
 	UPROPERTY()
 	int32 ClickCount;
 
+	AGridV2* GridReference;
 };

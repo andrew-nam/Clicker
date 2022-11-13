@@ -23,6 +23,9 @@ public:
 	UPROPERTY(Category = "Static Mesh", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* StaticMeshComponent;
 
+	UPROPERTY(Category = "Object Dimensions", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FIntPoint ObjectDimensions = (1, 1);
+
 	UFUNCTION(BlueprintCallable, Category = "Object Properties")
 	FIntPoint GetDimensions();
 
@@ -36,6 +39,5 @@ public:
 
 private:
 
-	FIntPoint ObjectDimensions;
 
 };

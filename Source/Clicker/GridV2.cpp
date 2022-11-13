@@ -185,7 +185,7 @@ bool AGridV2::IsTileValid(int32 Row, int32 Column)
 	return Row >= 0 && Row < NumRows && Column >= 0 && Column < NumColumns;
 }
 
-bool AGridV2::TryPlaceObject(APlaceableObject* ObjectToPlace, FVector WorldLocation)
+bool AGridV2::TryPlaceObjectAtWorldLocation(APlaceableObject* ObjectToPlace, FVector WorldLocation)
 {
 	check(IsValid(ObjectToPlace));
 	int32 Row;

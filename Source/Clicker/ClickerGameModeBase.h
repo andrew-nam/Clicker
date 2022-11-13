@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GridV2.h"
 #include "GameFramework/GameModeBase.h"
 #include "ClickerGameModeBase.generated.h"
 
@@ -18,4 +19,6 @@ public:
 	AClickerGameModeBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+
+	AGridV2* GetGrid();
 };
